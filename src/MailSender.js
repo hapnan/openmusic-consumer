@@ -36,7 +36,9 @@ class MailSender {
             attachments: [
                 {
                     filename: 'playlist.json',
-                    content,
+                    content: JSON.stringify({
+                        "playlists": JSON.parse(content)
+                    }),
                     contentType: 'application/json',
                 },
             ],

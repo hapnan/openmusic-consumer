@@ -7,23 +7,22 @@ class PlaylistServices {
 
     async getPlaylists(playlistId) {
         const query = {
-            text: `SELECT p.id, p.name, u.username,
-                                COALESCE(
-                                    jsonb_agg(
-                                        jsonb_build_object(
-                                            'id', s.id,
-                                            'title', s.title,
-                                            'performer', s.performer
-                                        )
-                                    ) FILTER (WHERE s.id IS NOT NULL),
-                                    '[]'::jsonb
-                                ) AS songs
-                            FROM playlists p
-                            JOIN users u ON p.owner = u.id
-                            LEFT JOIN playlist_songs ps ON p.id = ps.playlist_id
-                            LEFT JOIN songs s ON ps.song_id = s.id
-                            WHERE p.id = $1
-                            GROUP BY p.id, u.username;`,
+            text: `SELECT p.id, p.name,
+                        COALESCE(
+                            jsonb_agg(
+                                jsonb_build_object(
+                                    'id', s.id,
+                                    'title', s.title,
+                                    'performer', s.performer
+                                ) ORDER BY s.title
+                            ) FILTER (WHERE s.id IS NOT NULL),
+                            '[]'::jsonb
+                        ) AS songs
+                    FROM playlists p
+                    LEFT JOIN playlist_songs ps ON p.id = ps.playlist_id
+                    LEFT JOIN songs s ON ps.song_id = s.id
+                    WHERE p.id = $1
+                    GROUP BY p.id, p.name;`,
             values: [playlistId]
         };
 
